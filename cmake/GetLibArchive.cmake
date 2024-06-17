@@ -1,4 +1,3 @@
-#
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -15,24 +14,14 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-#
 
-if(NOT (ENABLE_ALL OR ENABLE_MQTT))
-    return()
-endif()
-
-include(${CMAKE_SOURCE_DIR}/extensions/ExtensionHeader.txt)
-include_directories(./processors ../../libminifi/include  ../../libminifi/include/core)
-
-file(GLOB SOURCES "processors/*.cpp")
-
-add_minifi_library(minifi-mqtt-extensions SHARED ${SOURCES})
-
-target_link_libraries(minifi-mqtt-extensions ${LIBMINIFI})
-
-include(GetPahoMQTT)
-get_pahomqtt(${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR})
-target_link_libraries(minifi-mqtt-extensions paho.mqtt.c)
-
-register_extension(minifi-mqtt-extensions "MQTT EXTENSIONS" MQTT-EXTENSIONS "This Enables MQTT functionality including PublishMQTT/ConsumeMQTT" "${CMAKE_CURRENT_SOURCE_DIR}/tests")
-register_extension_linter(minifi-mqtt-extensions-linter)
+function(get_libarchive SOURCE_DIR BINARY_DIR)
+    if(MINIFI_LIBARCHIVE_SOURCE STREQUAL "CONAN")
+        message("Using Conan Packager to manage installing prebuilt LibArchive external lib")
+        include(${CMAKE_BINARY_DIR}/LibArchiveConfig.cmake)
+    elseif(MINIFI_LIBARCHIVE_SOURCE STREQUAL "BUILD")
+        message("Using CMAKE's ExternalProject_Add to manage source building LibArchive external lib")
+        include(BundledLibArchive)
+        use_bundled_libarchive(${SOURCE_DIR} ${BINARY_DIR})
+    endif()
+endfunction(get_libarchive)

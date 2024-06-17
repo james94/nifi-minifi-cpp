@@ -7,7 +7,7 @@ import os
 required_conan_version = ">=2.1.0"
 
 shared_requires = ("openssl/3.2.1", "libcurl/8.6.0", "civetweb/1.16", "libxml2/2.12.6", "catch2/3.5.4",
-                   "fmt/10.2.1", "spdlog/1.14.0")
+                   "fmt/10.2.1", "spdlog/1.14.0", "libarchive/3.7.4", "paho-mqtt-c/1.3.13")
 shared_sources = ("CMakeLists.txt", "libminifi/*", "extensions/*", "minifi_main/*", "nanofi/*",
                   "bin/*", "bootstrap/*", "cmake/*", "conf/*", "controller/*", "encrypt-config/*",
                   "etc/*", "examples/*", "msi/*", "thirdparty/*", "docker/*", "LICENSE", "NOTICE", 
@@ -43,6 +43,8 @@ class MiNiFiCppMain(ConanFile):
         tc.variables["MINIFI_CATCH2_SOURCE"] = "CONAN"
         tc.variables["MINIFI_FMT_SOURCE"] = "CONAN"
         tc.variables["MINIFI_SPDLOG_SOURCE"] = "CONAN"
+        tc.variables["MINIFI_LIBARCHIVE_SOURCE"] = "CONAN"
+        tc.variables["MINIFI_PAHOMQTT_SOURCE"] = "CONAN"
 
         tc.variables["SKIP_TESTS"] = "OFF"
         tc.variables["ENABLE_OPENWSMAN"] = "ON"
@@ -52,7 +54,10 @@ class MiNiFiCppMain(ConanFile):
         tc.variables["ENABLE_ROCKSDB"] = "ON"
         tc.variables["BUILD_ROCKSDB"] = "ON"
 
-        tc.variables["ENABLE_LIBARCHIVE"] = "OFF"
+        tc.variables["ENABLE_LIBARCHIVE"] = "ON"
+        tc.variables["ENABLE_LZMA"] = "OFF"
+        tc.variables["ENABLE_MQTT"] = "ON"
+
         tc.variables["ENABLE_AWS"] = "OFF"
 
         tc.variables["ENABLE_OPC"] = "OFF"
@@ -65,11 +70,9 @@ class MiNiFiCppMain(ConanFile):
             tc.variables["ENABLE_SYSTEMD"] = "OFF"
             tc.variables["ENABLE_PROCFS"] = "OFF"
 
-        tc.variables["ENABLE_LZMA"] = "OFF"
         tc.variables["ENABLE_GPS"] = "OFF"
         tc.variables["ENABLE_COAP"] = "OFF"
         tc.variables["ENABLE_SQL"] = "OFF"
-        tc.variables["ENABLE_MQTT"] = "OFF"
         tc.variables["ENABLE_PCAP"] = "OFF"
         tc.variables["ENABLE_LIBRDKAFKA"] = "OFF"
         tc.variables["ENABLE_LUA_SCRIPTING"] = "OFF"

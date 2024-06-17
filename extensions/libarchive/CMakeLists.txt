@@ -27,8 +27,8 @@ if (ENABLE_LZMA)
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/liblzma/dummy")
 endif()
 
-include(BundledLibArchive)
-use_bundled_libarchive(${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR})
+include(GetLibArchive)
+get_libarchive(${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR})
 
 include(${CMAKE_SOURCE_DIR}/extensions/ExtensionHeader.txt)
 

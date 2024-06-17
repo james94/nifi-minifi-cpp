@@ -148,6 +148,9 @@ add_minifi_multi_option(MINIFI_LIBXML2_SOURCE "Retrieves LibXml2 from provided s
 add_minifi_multi_option(MINIFI_CATCH2_SOURCE "Retrieves Catch2 from provided source" "BUILD;SYSTEM;CONAN" "BUILD")
 add_minifi_multi_option(MINIFI_FMT_SOURCE "Retrieves Fmt from provided source" "BUILD;SYSTEM;CONAN" "BUILD")
 add_minifi_multi_option(MINIFI_SPDLOG_SOURCE "Retrieves Spdlog from provided source" "BUILD;SYSTEM;CONAN" "BUILD")
+add_minifi_multi_option(MINIFI_LIBARCHIVE_SOURCE "Retrieves LibArchive from provided source" "BUILD;SYSTEM;CONAN" "BUILD")
+add_minifi_multi_option(MINIFI_PAHOMQTT_SOURCE "Retrieves PahoMQTT from provided source" "BUILD;SYSTEM;CONAN" "BUILD")
+
 
 # Docker options
 
