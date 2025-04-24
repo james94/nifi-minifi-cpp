@@ -42,7 +42,7 @@ class RocksDBConan(ConanFile):
         "fPIC": True,
         "lite": False,
         "with_snappy": False,
-        "with_lz4": True,
+        "with_lz4": False,
         "with_zlib": True,
         "with_bz2": True,
         "with_zstd": True,
