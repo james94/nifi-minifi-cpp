@@ -184,7 +184,7 @@ status_service() {
 }
 
 flowStatus() {
-    if ! [ -f "${bin_dir}/minificontroller" ]; then
+    if ! [ -f "${bin_dir}/minifi-controller" ]; then
         echo "MiNiFi Controller is not installed"
         return
     fi
@@ -194,11 +194,11 @@ flowStatus() {
     fi
 
     if [ "$#" -lt 3 ]; then
-        exec "${bin_dir}/minificontroller" --flowstatus "$2"
+        exec "${bin_dir}/minifi-controller" --flowstatus "$2"
     elif [ "$#" -lt 4 ]; then
-        exec "${bin_dir}/minificontroller" --port "$2" --flowstatus "$3"
+        exec "${bin_dir}/minifi-controller" --port "$2" --flowstatus "$3"
     else
-        exec "${bin_dir}/minificontroller" --host "$2" --port "$3" --flowstatus "$4"
+        exec "${bin_dir}/minifi-controller" --host "$2" --port "$3" --flowstatus "$4"
     fi
 }
 

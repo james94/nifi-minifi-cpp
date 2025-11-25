@@ -23,6 +23,9 @@
 #include "utils/OsUtils.h"
 #include "core/state/nodes/SchedulingNodes.h"
 #include "core/state/nodes/SupportedOperations.h"
+// replace MiNiFi logger with fmt
+#include <fmt/format.h>
+#include <iostream>
 
 namespace org::apache::nifi::minifi::state::response {
 
@@ -34,6 +37,31 @@ std::vector<SerializedResponseNode> ComponentManifest::serialize() {
   SerializedResponseNode resp;
   resp.name = "componentManifest";
   struct Components group = build_description_.getClassDescriptions(getName());
+
+  // Logging: summarize component counts and list names for this bundle
+  {
+    std::cout << fmt::format("ComponentManifest group='{}' processors={} controllerServices={}",
+                             getName(), group.processors_.size(), group.controller_services_.size()) << std::endl;
+    if (!group.processors_.empty()) {
+      std::string names;
+      names.reserve(256);
+      for (const auto& p : group.processors_) {
+        if (!names.empty()) names += ", ";
+        names += p.full_name_;
+      }
+      std::cout << fmt::format("Processors [{}]", names) << std::endl;
+    }
+    if (!group.controller_services_.empty()) {
+      std::string names;
+      names.reserve(256);
+      for (const auto& s : group.controller_services_) {
+        if (!names.empty()) names += ", ";
+        names += s.full_name_;
+      }
+      std::cout << fmt::format("ControllerServices [{}]", names) << std::endl;
+    }
+  }
+
   serializeClassDescription(group.processors_, "processors", resp);
   serializeClassDescription(group.controller_services_, "controllerServices", resp);
   serialized.push_back(resp);
@@ -151,6 +179,23 @@ std::vector<SerializedResponseNode> ExternalManifest::serialize() {
   SerializedResponseNode resp;
   resp.name = "componentManifest";
   struct Components group = ExternalBuildDescription::getClassDescriptions(getName());
+
+  // Logging: summarize external component counts and list names
+  {
+    std::cout << fmt::format("ExternalManifest artifact='{}' processors={} controllerServices={}",
+                             getName(), group.processors_.size(), group.controller_services_.size()) << std::endl;
+    if (!group.processors_.empty()) {
+      std::string names;
+      for (const auto& p : group.processors_) { if (!names.empty()) names += ", "; names += p.full_name_; }
+      std::cout << fmt::format("External Processors [{}]", names) << std::endl;
+    }
+    if (!group.controller_services_.empty()) {
+      std::string names;
+      for (const auto& s : group.controller_services_) { if (!names.empty()) names += ", "; names += s.full_name_; }
+      std::cout << fmt::format("External ControllerServices [{}]", names) << std::endl;
+    }
+  }
+
   serializeClassDescription(group.processors_, "processors", resp);
   serializeClassDescription(group.controller_services_, "controllerServices", resp);
   serialized.push_back(resp);
@@ -159,6 +204,10 @@ std::vector<SerializedResponseNode> ExternalManifest::serialize() {
 
 std::vector<SerializedResponseNode> Bundles::serialize() {
   std::vector<SerializedResponseNode> serialized;
+  // Log extension bundles discovered
+  {
+    std::cout << "Discovering extension bundles..." << std::endl;
+  }
   for (const auto& group : AgentBuild::getExtensions()) {
     ComponentManifest component_manifest(group);
     const auto components = component_manifest.serialize();
@@ -176,7 +225,11 @@ std::vector<SerializedResponseNode> Bundles::serialize() {
         {.name = "version", .value = AgentBuild::VERSION},
       }
     };
-
+    // Logging: bundle metadata
+    {
+      std::cout << fmt::format("Bundle added artifact='{}' group='{}' version='{}'",
+                               group, GROUP_STR, AgentBuild::VERSION) << std::endl;
+    }
     serialized.push_back(bundle);
   }
 
@@ -195,6 +248,11 @@ std::vector<SerializedResponseNode> Bundles::serialize() {
     // serialize the component information.
     for (const auto& component : compMan.serialize()) {
       bundle.children.push_back(component);
+    }
+    // Logging: external bundle metadata
+    {
+      std::cout << fmt::format("External bundle added artifact='{}' group='{}' version='{}'",
+                             group.artifact, group.group, group.version) << std::endl;
     }
     serialized.push_back(bundle);
   }
@@ -306,6 +364,11 @@ SerializedResponseNode AgentStatus::serializeResourceConsumption() {
 }
 
 std::vector<SerializedResponseNode> AgentManifest::serialize() {
+  // High-level manifest build info logging
+  {
+    std::cout << fmt::format("Building AgentManifest agentType=cpp version='{}' revision='{}'",
+                             AgentBuild::VERSION, AgentBuild::BUILD_REV) << std::endl;
+  }
   std::vector<SerializedResponseNode> serialized = {
       {.name = "identifier", .value = AgentBuild::BUILD_IDENTIFIER},
       {.name = "agentType", .value = "cpp"},
@@ -319,6 +382,10 @@ std::vector<SerializedResponseNode> AgentManifest::serialize() {
   };
   {
     auto bundles = Bundles{"bundles"}.serialize();
+    // Log summary bundle count
+    {
+      std::cout << fmt::format("AgentManifest bundles serialized: {}", bundles.size()) << std::endl;
+    }
     std::move(std::begin(bundles), std::end(bundles), std::back_inserter(serialized));
   }
   {
@@ -333,6 +400,10 @@ std::vector<SerializedResponseNode> AgentManifest::serialize() {
       supported_operations.setConfigurationReader(configuration_reader_);
       return supported_operations.serialize();
     }();
+    // Log supported operations node count
+    {
+      std::cout << fmt::format("AgentManifest supportedOperations nodes: {}", supportedOperations.size()) << std::endl;
+    }
     std::move(std::begin(supportedOperations), std::end(supportedOperations), std::back_inserter(serialized));
   }
   return serialized;
